@@ -55,8 +55,8 @@ public class AlunoService {
         repository.deleteByCpf(cpf);
     }
 
-    public List<Aluno> buscarPorNome(String nome) {
-        return repository.findByNomeContainingIgnoreCase(nome);
+    public List<AlunoResponse> buscarPorNome(String nome) {
+        return mapper.mapAluno(repository.findByNomeContainingIgnoreCase(nome));
     }
 
 }

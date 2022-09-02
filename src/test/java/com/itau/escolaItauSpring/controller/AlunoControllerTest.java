@@ -17,15 +17,21 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AlunoController.class)
@@ -110,6 +116,46 @@ public class AlunoControllerTest {
     void testeAtivarAluno() throws Exception {
         ResultActions result = mockMvc.perform(MockMvcRequestBuilders.patch("/aluno/{id}", idExistente).contentType(MediaType.APPLICATION_JSON));
         result.andExpect(status().isAccepted());
+    }
+
+    @Test
+    void deveListarQuantidadeAlunosAtivos() throws Exception {
+        when(alunoService.quantidadeAlunosAtivo()).thenReturn(3L);
+
+        MvcResult mvcResult = mockMvc.perform(get("/aluno//quantidade-ativo"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        Long qtdALunos = alunoService.quantidadeAlunosAtivo();
+        String responseBody = mvcResult.getResponse().getContentAsString();
+        assertEquals(qtdALunos.toString(),responseBody);
+        verify(alunoService,atLeastOnce()).quantidadeAlunosAtivo();
+    }
+
+    @Test
+    void deveRemoverAlunoPorCpf() throws Exception {
+        doNothing().when(alunoService).removerPorCpf(any());
+
+        MvcResult response = mockMvc.perform(delete("/aluno/cpf/{cpf}", 12312312345L ))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        verify(alunoService,times(1)).removerPorCpf(12312312345L);
+    }
+
+    @Test
+    void deveBuscarAlunoPorNome() throws Exception {
+
+        when(alunoService.buscarPorNome("AlunoTeste")).thenReturn(List.of(alunoResponse));
+
+        MvcResult response = mockMvc.perform(get("/aluno/busca/{nome}","AlunoTeste"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseBody = response.getResponse().getContentAsString();
+
+        verify(alunoService,times(1)).buscarPorNome("AlunoTeste");
+        assertThat(responseBody).isEqualToIgnoringWhitespace(List.of(objectMapper.writeValueAsString(alunoResponse)).toString());
     }
 
 }

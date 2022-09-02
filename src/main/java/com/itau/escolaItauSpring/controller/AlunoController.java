@@ -60,7 +60,7 @@ public class AlunoController {
     }
 
     @GetMapping("/busca/{nome}")
-    public ResponseEntity buscarPorNome(@PathVariable String nome) {
+    public ResponseEntity<List<AlunoResponse>> buscarPorNome(@PathVariable String nome) {
         return ResponseEntity.ok(alunoService.buscarPorNome(nome));
     }
 }
