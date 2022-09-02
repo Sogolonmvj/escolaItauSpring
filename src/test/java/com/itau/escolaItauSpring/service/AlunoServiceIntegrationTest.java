@@ -7,6 +7,10 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 @SpringBootTest
 class AlunoServiceIntegrationTest {
 
@@ -29,6 +33,14 @@ class AlunoServiceIntegrationTest {
         aluno.setCursos(null);
         aluno.setEndereco(null);
         aluno.setIdade(26);
+    }
+
+    @Test
+    @Disabled
+    void salvarAluno() {
+        Aluno alunoSalvo = alunoRepository.save(AlunoServiceIntegrationTest.aluno);
+        Aluno aluno = new Aluno();
+        Assertions.assertEquals(aluno, alunoSalvo);
     }
 
     @Test
@@ -59,13 +71,25 @@ class AlunoServiceIntegrationTest {
         alunoRepository.deleteByCpf(aluno.getCpf());
         quantidadeDeAlunoSalvos = alunoRepository.countAlunoByAtivado(true);
         Assertions.assertEquals(0L, quantidadeDeAlunoSalvos);
-
     }
 
     @Test
     void findById() {
         Aluno aluno = alunoRepository.save(AlunoServiceIntegrationTest.aluno);
-        Assertions.assertEquals(aluno,alunoRepository.findById(aluno.getId()));
+        Assertions.assertEquals(aluno.getNome(), alunoRepository.findById(aluno.getId()).get().getNome());
+    }
 
+    @Test
+    void findByNomeContainingIgnoreCase() {
+        Aluno aluno = alunoRepository.save(AlunoServiceIntegrationTest.aluno);
+        List<Aluno> alunos = alunoRepository.findByNomeContainingIgnoreCase(aluno.getNome().toUpperCase());
+
+        Assertions.assertEquals(AlunoServiceIntegrationTest.aluno.getNome(), alunoRepository.findByNomeContainingIgnoreCase(aluno.getNome().toUpperCase()).get(0).getNome());
+    }
+
+    @Test
+    void findAll() {
+        List<Aluno> alunos = new ArrayList<>();
+        Assertions.assertEquals(alunos, alunoRepository.findAll());
     }
 }
