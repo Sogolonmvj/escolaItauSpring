@@ -8,6 +8,8 @@ import com.itau.escolaItauSpring.model.Aluno;
 import com.itau.escolaItauSpring.model.Curso;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 

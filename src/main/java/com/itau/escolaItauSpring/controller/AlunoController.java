@@ -54,7 +54,7 @@ public class AlunoController {
     }
 
     @DeleteMapping("/cpf/{cpf}")
-    public ResponseEntity removerPorCpf(@PathVariable Long cpf) {
+    public ResponseEntity<?> removerPorCpf(@PathVariable Long cpf) {
         alunoService.removerPorCpf(cpf);
         return ResponseEntity.ok().build();
     }

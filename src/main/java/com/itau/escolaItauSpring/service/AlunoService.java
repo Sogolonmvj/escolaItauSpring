@@ -3,13 +3,10 @@ package com.itau.escolaItauSpring.service;
 import com.itau.escolaItauSpring.config.mapper.AlunoMapper;
 import com.itau.escolaItauSpring.dto.request.AlunoRequest;
 import com.itau.escolaItauSpring.dto.response.AlunoResponse;
-import com.itau.escolaItauSpring.exception.ItemNaoExistenteException;
 import com.itau.escolaItauSpring.model.Aluno;
 import com.itau.escolaItauSpring.repository.AlunoRepository;
-import com.itau.escolaItauSpring.repository.MemoryRepository;
-import com.itau.escolaItauSpring.service.exception.ResourceNotFoundException;
+import com.itau.escolaItauSpring.service.exception.RecursoNaoEncontrado;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,13 +25,13 @@ public class AlunoService {
         return mapper.toResponse(repository.save(aluno));
     }
 
-    public void ativar(UUID id) throws ItemNaoExistenteException {
-        Aluno aluno = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException());
+    public void ativar(UUID id) {
+        Aluno aluno = repository.findById(id).orElseThrow(RecursoNaoEncontrado::new);
         aluno.setAtivado(true);
         repository.save(aluno);
     }
 
-    public void desativar(Aluno aluno) throws ItemNaoExistenteException {
+    public void desativar(Aluno aluno) {
         aluno.setAtivado(false);
         repository.save(aluno);
     }
@@ -43,8 +40,8 @@ public class AlunoService {
         return mapper.mapAluno(repository.findAll());
     }
 
-    public AlunoResponse localizar(UUID id) throws ItemNaoExistenteException {
-        return mapper.toResponse(repository.findById(id).orElseThrow(ResourceNotFoundException::new));
+    public AlunoResponse localizar(UUID id)  {
+        return mapper.toResponse(repository.findById(id).orElseThrow(RecursoNaoEncontrado::new));
     }
 
     public Long quantidadeAlunosAtivo() {

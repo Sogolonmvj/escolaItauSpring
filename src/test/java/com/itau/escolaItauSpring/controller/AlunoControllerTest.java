@@ -6,7 +6,7 @@ import com.itau.escolaItauSpring.dto.request.AlunoRequest;
 import com.itau.escolaItauSpring.dto.response.AlunoResponse;
 import com.itau.escolaItauSpring.exception.ItemNaoExistenteException;
 import com.itau.escolaItauSpring.service.AlunoService;
-import com.itau.escolaItauSpring.service.exception.ResourceNotFoundException;
+import com.itau.escolaItauSpring.service.exception.RecursoNaoEncontrado;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -67,8 +67,8 @@ public class AlunoControllerTest {
         idNaoExistente = UUID.fromString("00000000-0000-0000-0000-450fe00000d8");
 
         when(alunoService.localizar(idExistente)).thenReturn(alunoResponse);
-        when(alunoService.localizar(idNaoExistente)).thenThrow(ResourceNotFoundException.class);
-
+        when(alunoService.localizar(idNaoExistente)).thenThrow(RecursoNaoEncontrado.class);
+        doThrow(RecursoNaoEncontrado.builder().build()).when(alunoService).ativar(idNaoExistente);
     }
 
     @Test
@@ -119,6 +119,12 @@ public class AlunoControllerTest {
     }
 
     @Test
+    void testeAtivarDeveLancarExcecaoQuandoIdNaoExistente() throws Exception {
+        var result = mockMvc.perform(MockMvcRequestBuilders.patch("/aluno/{id}", idNaoExistente).contentType(MediaType.APPLICATION_JSON));
+        result.andExpect(status().isNotFound());
+    }
+
+    @Test
     void deveListarQuantidadeAlunosAtivos() throws Exception {
         when(alunoService.quantidadeAlunosAtivo()).thenReturn(3L);
 
@@ -157,5 +163,6 @@ public class AlunoControllerTest {
         verify(alunoService,times(1)).buscarPorNome("AlunoTeste");
         assertThat(responseBody).isEqualToIgnoringWhitespace(List.of(objectMapper.writeValueAsString(alunoResponse)).toString());
     }
+
 
 }
