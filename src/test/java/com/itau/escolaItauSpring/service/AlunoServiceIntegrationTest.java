@@ -3,13 +3,15 @@ package com.itau.escolaItauSpring.service;
 import com.itau.escolaItauSpring.config.mapper.AlunoMapper;
 import com.itau.escolaItauSpring.model.Aluno;
 import com.itau.escolaItauSpring.repository.AlunoRepository;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @SpringBootTest
 class AlunoServiceIntegrationTest {
@@ -35,12 +37,15 @@ class AlunoServiceIntegrationTest {
         aluno.setIdade(26);
     }
 
+    @AfterEach
+    public void finish() {
+        alunoRepository.deleteAll();
+    }
+
     @Test
-    @Disabled
     void salvarAluno() {
         Aluno alunoSalvo = alunoRepository.save(AlunoServiceIntegrationTest.aluno);
-        Aluno aluno = new Aluno();
-        Assertions.assertEquals(aluno, alunoSalvo);
+        Assertions.assertEquals(aluno.getNome(), alunoSalvo.getNome());
     }
 
     @Test
@@ -53,7 +58,6 @@ class AlunoServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("")
     void countAlunoByAtivado() {
         Aluno aluno = alunoRepository.save(AlunoServiceIntegrationTest.aluno);
         alunoService.ativar(aluno.getId());
@@ -65,12 +69,11 @@ class AlunoServiceIntegrationTest {
     @Test
     void deleteByCpf() {
         Aluno aluno = alunoRepository.save(AlunoServiceIntegrationTest.aluno);
-        alunoService.ativar(aluno.getId());
-        Long quantidadeDeAlunoSalvos = alunoRepository.countAlunoByAtivado(true);
-        Assertions.assertEquals(1L, quantidadeDeAlunoSalvos);
+        List<Aluno> alunosSalvos = alunoRepository.findAll();
+        Assertions.assertEquals(1, alunosSalvos.size());
         alunoRepository.deleteByCpf(aluno.getCpf());
-        quantidadeDeAlunoSalvos = alunoRepository.countAlunoByAtivado(true);
-        Assertions.assertEquals(0L, quantidadeDeAlunoSalvos);
+        alunosSalvos = alunoRepository.findAll();
+        Assertions.assertEquals(0, alunosSalvos.size());
     }
 
     @Test
